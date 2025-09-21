@@ -1,0 +1,20 @@
+name: monaco-viewer-env
+channels:
+  - defaults
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - libffi=3.4.2
+  - libstdcxx-ng>=13
+  - libgcc-ng>=13
+  - libxcb=1.17.0
+  - xorg-libx11=1.8.*
+  - xorg-libxau=1.0.*
+  - xorg-libxdmcp=1.1.*
+  - xorg-xorgproto=2024.1
+  - pip:
+      - pywebview[qt]
+      - PySide6
+

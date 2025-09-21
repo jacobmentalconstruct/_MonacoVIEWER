@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https://cdn.jsdelivr.net https://unpkg.com;
+                 style-src   'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com;
+                 script-src  'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com;
+                 font-src    https://cdn.jsdelivr.net https://unpkg.com;
+                 img-src     'self' data:;
+                 worker-src  blob:">
+  <title>Monaco Seed</title>
+  <style>
+    %CSS%
+  </style>
+  <script>
+    %JS%
+  </script>
+</head>
+<body>
+  <div id="tabs-container"></div>
+  <div id="editor"></div>
+  
+  <div id="status-bar">
+    <span id="status-filepath"></span>
+    <span id="status-cursor">Ln 1, Col 1</span>
+  </div>
+
+  <!-- This is the new, simplified modal -->
+  <div id="surgical-modal-overlay" class="hidden">
+    <div id="surgical-modal">
+      <h2>Agent Surgical Replace</h2>
+      <p>Paste a JSON object from an agent into the text area below.</p>
+      
+      <textarea id="surg-text" rows="10" placeholder=""></textarea>
+
+      <div class="modal-buttons">
+        <button id="surg-copy-schema">Copy Schema</button>
+        <button id="surg-cancel">Cancel</button>
+        <button id="surg-apply">Apply</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+
+
