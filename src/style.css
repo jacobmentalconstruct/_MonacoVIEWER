@@ -1,51 +1,26 @@
 html, body {
-    height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
+  height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  display: flex; flex-direction: column; background: #1e1e1e; color: #ddd;
 }
-
 #tabs-container {
-    flex: 0 0 auto;
-    display: flex;
-    background-color: #252526;
-    padding: 5px 5px 0 5px;
-    overflow-x: auto;
+  flex: 0 0 auto; display: flex; background-color: #252526;
+  padding: 5px 5px 0 5px; overflow-x: auto;
 }
-
 .tab {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    background-color: #2D2D2D;
-    color: #9e9e9e;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    margin-right: 2px;
-    cursor: pointer;
-    font-size: 14px;
-    white-space: nowrap;
+  display: flex; align-items: center; padding: 8px 12px;
+  background-color: #2D2D2D; color: #9e9e9e;
+  border-top-left-radius: 4px; border-top-right-radius: 4px;
+  margin-right: 2px; cursor: pointer; font-size: 14px; white-space: nowrap;
 }
-
-.tab.active {
-    background-color: #1E1E1E;
-    color: #ffffff;
-}
-
+.tab.active { background-color: #1E1E1E; color: #ffffff; }
 .tab-close {
-    margin-left: 10px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    line-height: 1; /* Helps vertically center the character */
+  margin-left: 10px; width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: bold;
 }
-
 .tab:hover .tab-close { background-color: #3f3f3f; }
 .tab-close:hover { background-color: #5f5f5f; }
+#editor { flex: 1 1 auto; min-height: 0; }
 
 #editor {
     flex: 1 1 auto;
@@ -63,8 +38,6 @@ html, body {
     font-size: 13px;
     min-height: 22px;
 }
-
-/* Surgical Replace Modal Styles */
 #surgical-modal-overlay {
     position: fixed;
     top: 0;
@@ -77,7 +50,6 @@ html, body {
     justify-content: center;
     z-index: 1000;
 }
-
 #surgical-modal {
     background-color: #252526;
     color: #cccccc;

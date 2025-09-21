@@ -12,7 +12,7 @@ import json
 import os
 import sys
 import contextlib
-import re # <-- Import the regular expression module
+import re 
 
 # Force Qt backend for stability
 os.environ['PYWEBVIEW_GUI'] = 'qt'
@@ -62,6 +62,10 @@ class Api:
         self.window: webview.Window | None = None
         self._active_path: str | None = None
         self._active_is_dirty: bool = False
+        self._boot: dict | None = None
+
+    def get_boot_data(self) -> dict:
+        return self._boot or {}
 
     def create_alert(self, title: str, message: str):
         """Allows JS to show a native alert dialog."""
@@ -137,12 +141,14 @@ class Api:
         """Updates the window title bar with the current file name and dirty status."""
         if not self.window:
             return
-        name = os.path.basename(self._active_path) if self._active_path else 'Untitled'
+        base = os.path.basename(self._active_path) if self._active_path else 'Untitled'
+        # Hide NamedTemporaryFile suffixes like "Untitled-xyz123.txt"
+        if base.lower().startswith("untitled-") and base.lower().endswith(".txt"):
+            base = "Untitled"
         dirty_indicator = '●' if self._active_is_dirty else ''
-        self.window.set_title(f"{name}{dirty_indicator} - Monaco Viewer")
+        self.window.set_title(f"{base}{dirty_indicator} - Monaco Viewer")
 
 # ---------------- Launcher ----------------
-
 def load_and_combine_ui() -> str:
     """Reads the separate UI files and combines them into a single HTML string."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -158,15 +164,23 @@ def load_and_combine_ui() -> str:
         sys.exit(1)
     return html_template.replace('%CSS%', css_text).replace('%JS%', js_text)
 
-
-def launch_editor(file=None, sline=None, eline=None, scol=None, ecol=None, replace_text=None, autosave=False, theme='vs-dark', lang=None, read_only=False):
+def launch_editor(file=None, sline=None, eline=None, scol=None, ecol=None,
+                  replace_text=None, autosave=False, theme='vs-dark',
+                  lang=None, read_only=False):
+    # use the module-level os
     path = os.path.abspath(file) if file else None
     text = load_text(path)
-    api = Api()
+    base = os.path.basename(path) if path else ""
+    is_untitled = (not base) or (base.lower().startswith("untitled-") and base.lower().endswith(".txt"))
+    display_name = "Untitled" if is_untitled else base
+
     boot = {
         'text': text, 'path': path, 'sline': sline, 'eline': eline, 'scol': scol, 'ecol': ecol,
-        'replaceText': replace_text, 'autosave': autosave, 'theme': theme, 'lang': lang, 'readOnly': read_only,
+        'replaceText': replace_text, 'autosave': autosave, 'theme': theme, 'lang': lang,
+        'readOnly': read_only, 'displayName': display_name, 'isUntitled': is_untitled,
     }
+    api = Api()
+    api._boot = boot
     final_html = load_and_combine_ui().replace('%BOOT%', b64(json.dumps(boot)))
     menu_items = [
         Menu('File', [
@@ -216,7 +230,8 @@ def main():
     ap = argparse.ArgumentParser(description='Monaco Viewer - A lightweight code editor and command-line manipulator.')
     
     # --- UI-based arguments ---
-    ap.add_argument('--file', type=str, required=True, help='The absolute or relative path to the file.')
+    ap.add_argument('--file', nargs='?', default=None, help='Path to file to open. Omit to start with an Untitled buffer.')
+    ap.add_argument('--untitled', action='store_true', help='Ignore --file and start a new Untitled buffer.')
     ap.add_argument('--sline', type=int, help='The starting line number for selection/replacement.')
     ap.add_argument('--eline', type=int, help='The ending line number for selection/replacement.')
     ap.add_argument('--scol', type=int, help='The starting column number for replacement.')
@@ -225,7 +240,7 @@ def main():
     ap.add_argument('--autosave', action='store_true', help='Automatically save the file after a replacement.')
     ap.add_argument('--theme', type=str, default='vs-dark', help='Sets the editor theme. Options: vs, vs-dark.')
     ap.add_argument('--lang', type=str, help='Forces a specific syntax highlighting language.')
-    ap.add_gument('--read-only', action='store_true', help='Opens the file in read-only mode.')
+    ap.add_argument('--read-only', action='store_true', help='Opens the file in read-only mode.')
 
     # --- New Headless Regex Arguments ---
     ap.add_argument('--regex-find', type=str, help='[HEADLESS MODE] A regex pattern to find.')
@@ -233,9 +248,12 @@ def main():
 
     args = ap.parse_args()
 
-    # --- Headless Mode Logic ---
+    # --- Headless Mode Logic ---       
     if args.regex_find and args.regex_replace:
-        if not os.path.exists(args.file):
+        if not args.file:
+            print("[error] --file is required for headless regex mode.", file=sys.stderr)
+            sys.exit(2)
+        if not os.path.exists(args.file):        
             print(f"[error] File not found: {args.file}", file=sys.stderr)
             sys.exit(1)
         try:
@@ -259,6 +277,22 @@ def main():
 
 
     # --- UI Mode Logic (if not in headless mode) ---
+    # Create a real temp file if no --file was given (or --untitled used),
+    # so save/dirty workflows behave normally across platforms.
+    if args.untitled or args.file is None:
+        from tempfile import NamedTemporaryFile
+        tmp = NamedTemporaryFile(mode="w+", suffix=".txt", prefix="Untitled-", delete=False)
+        tmp.close()
+        args.file = tmp.name
+
+    # Infer language if not provided
+    if not args.lang and args.file:
+        ext = os.path.splitext(args.file)[1].lower()
+        args.lang = {
+            '.py':'python','.js':'javascript','.ts':'typescript','.json':'json',
+            '.md':'markdown','.html':'html','.css':'css','.txt':'plaintext',
+            '.c':'c','.cpp':'cpp','.h':'c','.hpp':'cpp','.sh':'shell','.ini':'ini',
+        }.get(ext, 'plaintext')
     launch_editor(
         file=args.file, sline=args.sline, eline=args.eline, scol=args.scol, ecol=args.ecol,
         replace_text=args.replace_text, autosave=args.autosave, theme=args.theme,
