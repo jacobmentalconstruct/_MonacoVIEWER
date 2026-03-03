@@ -1,0 +1,6 @@
+pywebview==6.0
+qtpy
+PySide6
+bottle
+proxy_tools
+typing_extensions
