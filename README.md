@@ -12,66 +12,60 @@ A lightweight, cross-platform desktop editor and command-line utility powered by
 
 ## **Installation**
 
-The project uses Conda to manage its environment and dependencies.
+The project uses a standard Python virtual environment (.venv) to manage dependencies.
 
-1. **Prerequisites**: Ensure you have [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution) installed.  
+1. **Prerequisites**: Ensure you have **Python 3.10, 3.11, or 3.12** installed. (Python 3.11 is recommended for maximum compatibility with PySide6 and pywebview).  
 2. **Clone the Repository**:  
    git clone \[https://github.com/jacobmentalconstruct/\_MonacoVIEWER.git\](https://github.com/jacobmentalconstruct/\_MonacoVIEWER.git)  
    cd \_MonacoVIEWER
 
-3. **Create the Conda Environment**:  
-   conda env create \-f environment.yml
+3. **Setup Environment**:  
+   * **Windows**: Run the automated setup script:  
+     setup\_env.bat
 
-4. **Activate the Environment**:  
-   conda activate monaco-viewer-env
+   * **Linux/macOS**:  
+     python3 \-m venv .venv  
+     source .venv/bin/activate  
+     pip install \-r requirements.txt
 
 ## **Usage**
 
-### **As a Standalone App (UI Mode)**
+### **Launch Command**
 
-To launch the editor, simply run the launcher script:  
-python start\_app.py \--file /path/to/your/file.js
+Once the environment is initialized, launch the application using the module path through your virtual environment:  
+**Windows:**  
+.venv\\Scripts\\python \-m src.app \--file /path/to/your/file.js
 
-### **Programmatic & Command-Line Integration**
+**Linux/macOS:**  
+./.venv/bin/python \-m src.app \--file /path/to/your/file.js
+
+### **Command-Line Integration**
 
 #### **1\. Headless Regex Replacement (Fast & Scriptable)**
 
-For simple find-and-replace operations in scripts, you can run the app in a truly headless mode that does not launch the UI.  
-**Example:** To replace all occurrences of old\_api\_key in a configuration file:  
-python start\_app.py \--file "config.ini" \\  
-\--regex-find "old\_api\_key" \\  
-\--regex-replace "new\_super\_secret\_key"
+For simple find-and-replace operations in scripts without launching the UI:  
+.venv\\Scripts\\python \-m src.app \--file "config.ini" \--regex-find "old\_api\_key" \--regex-replace "new\_secret\_key"
 
 #### **2\. Surgical Text Replacement (Precise & UI-Assisted)**
 
-For complex edits from AI agents or scripts that require precise line/column accuracy, use the surgical replacement flags. This will briefly launch the UI to perform the operation.  
-**Example:** To replace lines 10-12 of config.txt and save automatically:  
-python start\_app.py \--file "config.txt" \\  
-\--sline 10 \--eline 12 \\  
-\--replace-text "\#\# NEW CONFIGURATION \#\#\\nkey \= value" \\  
-\--autosave
+For complex edits that require precise line/column accuracy, this briefly launches the UI to perform the operation.  
+.venv\\Scripts\\python \-m src.app \--file "config.txt" \--sline 10 \--eline 12 \--replace-text "\#\# NEW HEADER \#\#" \--autosave
 
-#### **All Command-Line Options**
+## **Command-Line Options**
 
 | Argument | Description |
 | :---- | :---- |
-| \--file | **Required.** The path to the file. |
+| \--file | **Required.** Path to the file to open or process. |
 | \--regex-find | **\[HEADLESS\]** A regex pattern to find. |
 | \--regex-replace | **\[HEADLESS\]** The replacement string for the regex pattern. |
-| \--sline | **\[UI\]** The starting line number for selection/replacement. |
-| \--eline | **\[UI\]** The ending line number for selection/replacement. |
-| \--scol | **\[UI\]** The starting column number for replacement. |
-| \--ecol | **\[UI\]** The ending column number for replacement. |
+| \--sline / \--eline | **\[UI\]** The starting and ending line numbers for selection. |
+| \--scol / \--ecol | **\[UI\]** The starting and ending column numbers for selection. |
 | \--replace-text | **\[UI\]** The text to insert into the specified range. |
-| \--autosave | **\[UI\]** Automatically save after a surgical replacement. |
-| \--theme | **\[UI\]** Sets the editor theme. Options: vs, vs-dark. |
+| \--autosave | **\[UI\]** Automatically save and exit after a surgical replacement. |
+| \--theme | **\[UI\]** Sets the editor theme (vs or vs-dark). |
 | \--lang | **\[UI\]** Forces a specific syntax highlighting language. |
 | \--read-only | **\[UI\]** Opens the file in read-only mode. |
 
-## **Contributing**
-
-Contributions are welcome\! If you have ideas for new features or have found a bug, please feel free to open an issue or submit a pull request.
-
 ## **License**
 
-This project is licensed under the MIT License \- see the [LICENSE.md](http://docs.google.com/LICENSE.md) file for details.
+This project is licensed under the MIT License \- see the LICENSE file for details.
